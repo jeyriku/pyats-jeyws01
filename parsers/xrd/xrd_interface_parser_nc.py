@@ -26,8 +26,7 @@ Parser for retrieving interface status via Netconf using OpenConfig YANG models.
 import xmltodict
 from genie.utils import Dq
 from lxml import etree
-from utils import sanitize_xml
-from rpc_msgs import BASE_RPC
+from utils import sanitize_xml, BASE_RPC
 import logging
 
 

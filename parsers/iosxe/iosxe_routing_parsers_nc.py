@@ -6,7 +6,7 @@
 # Created: 23.01.2026 22:58:12
 # Author: Jeremie Rouzet
 #
-# Last Modified: 26.01.2026 13:55:16
+# Last Modified: 27.01.2026 18:50:17
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2026 Netalps.fr
@@ -29,7 +29,7 @@ import logging
 import xmltodict
 from genie.utils import Dq
 from lxml import etree
-from utils.rpc_msgs import BASE_RPC
+from utils import BASE_RPC
 from packaging import version
 
 
@@ -62,21 +62,28 @@ class IOSXERoutingParsersMixin:
             </get-routing-table>
         '''
         response = self.netconf_get(rpc)
-        xml_response = etree.fromstring(response.xml, parser=parser)
-        xml_str = etree.tostring(xml_response, encoding='utf-8').decode('utf-8')
-        data_dict = xmltodict.parse(xml_str)
-        dq = Dq(data_dict)
+        data_dict = xmltodict.parse(response.xml)
 
-        routing_entries = dq.get_values('rt-entry', default=[])
+        # Navigate to routing table entries
+        rpc_reply = data_dict.get("rpc-reply", {})
+        routing_table = rpc_reply.get("routing-table", {})
+        rt_entries = routing_table.get("rt-entry", [])
+
+        # Handle both single entry (dict) and multiple entries (list)
+        if isinstance(rt_entries, dict):
+            routing_entries = [rt_entries]
+        else:
+            routing_entries = rt_entries
+
         parsed_entries = []
 
         for entry in routing_entries:
             parsed_entry = {
-                'prefix': entry.get('prefix'),
-                'protocol': entry.get('protocol-name'),
-                'next_hop': entry.get('nh', {}).get('address'),
+                'prefix': entry.get('destination'),
+                'protocol': entry.get('protocol'),
+                'next_hop': entry.get('gateway'),
                 'metric': entry.get('metric'),
-                'interface': entry.get('interface-name'),
+                'interface': entry.get('interface'),
             }
             parsed_entries.append(parsed_entry)
 
@@ -98,12 +105,17 @@ class IOSXERoutingParsersMixin:
             </get-ospf-routes>
         '''
         response = self.netconf_get(rpc)
-        xml_response = etree.fromstring(response.xml, parser=parser)
-        xml_str = etree.tostring(xml_response, encoding='utf-8').decode('utf-8')
-        data_dict = xmltodict.parse(xml_str)
-        dq = Dq(data_dict)
+        data_dict = xmltodict.parse(response.xml)
+        # Navigate to OSPF routes
+        ospf_routes_data = data_dict.get("ospf-routes", {})
+        ospf_route_entries = ospf_routes_data.get("ospf-route", [])
 
-        ospf_routes = dq.get_values('ospf-route', default=[])
+        # Handle both single route (dict) and multiple routes (list)
+        if isinstance(ospf_route_entries, dict):
+            ospf_routes = [ospf_route_entries]
+        else:
+            ospf_routes = ospf_route_entries
+
         parsed_routes = []
 
         for route in ospf_routes:
@@ -133,12 +145,17 @@ class IOSXERoutingParsersMixin:
             </get-bgp-routes>
         '''
         response = self.netconf_get(rpc)
-        xml_response = etree.fromstring(response.xml, parser=parser)
-        xml_str = etree.tostring(xml_response, encoding='utf-8').decode('utf-8')
-        data_dict = xmltodict.parse(xml_str)
-        dq = Dq(data_dict)
+        data_dict = xmltodict.parse(response.xml)
+        # Navigate to BGP routes
+        bgp_routes_data = data_dict.get("bgp-routes", {})
+        bgp_route_entries = bgp_routes_data.get("bgp-route", [])
 
-        bgp_routes = dq.get_values('bgp-route', default=[])
+        # Handle both single route (dict) and multiple routes (list)
+        if isinstance(bgp_route_entries, dict):
+            bgp_routes = [bgp_route_entries]
+        else:
+            bgp_routes = bgp_route_entries
+
         parsed_routes = []
 
         for route in bgp_routes:
@@ -166,21 +183,28 @@ class IOSXERoutingParsersMixin:
             </get-routing-table>
         '''
         response = self.netconf_get(rpc)
-        xml_response = etree.fromstring(response.xml, parser=parser)
-        xml_str = etree.tostring(xml_response, encoding='utf-8').decode('utf-8')
-        data_dict = xmltodict.parse(xml_str)
-        dq = Dq(data_dict)
+        data_dict = xmltodict.parse(response.xml)
 
-        routing_entries = dq.get_values('rt-entry', default=[])
+        # Navigate to routing table entries
+        rpc_reply = data_dict.get("rpc-reply", {})
+        routing_table = rpc_reply.get("routing-table", {})
+        rt_entries = routing_table.get("rt-entry", [])
+
+        # Handle both single entry (dict) and multiple entries (list)
+        if isinstance(rt_entries, dict):
+            routing_entries = [rt_entries]
+        else:
+            routing_entries = rt_entries
+
         parsed_entries = []
 
         for entry in routing_entries:
             parsed_entry = {
-                'prefix': entry.get('prefix'),
-                'protocol': entry.get('protocol-name'),
-                'next_hop': entry.get('nh', {}).get('address'),
+                'prefix': entry.get('destination'),
+                'protocol': entry.get('protocol'),
+                'next_hop': entry.get('gateway'),
                 'metric': entry.get('metric'),
-                'interface': entry.get('interface-name'),
+                'interface': entry.get('interface'),
             }
             parsed_entries.append(parsed_entry)
 

@@ -8,7 +8,7 @@
 # Created: 2025/06/25 13:41:04
 # Author: Jeremie Rouzet
 #
-# Last Modified: 26.01.2026 13:53:34
+# Last Modified: 27.01.2026 18:44:08
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2025 Netalps.fr
@@ -28,7 +28,7 @@ import xmltodict
 import pprint
 from genie.utils import Dq
 from lxml import etree
-from utils.rpc_msgs import BASE_RPC
+from utils import BASE_RPC
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
@@ -70,8 +70,17 @@ def get_interface_status_xr(self):
     if not reply.ok or not reply_dict.get("rpc-reply", {}).get("data"):
         return []
     logger.info(f"Full parsed RPC reply:\n{pprint.pformat(reply_dict, indent=2)}")
-    interfaces = Dq(reply_dict).get_values("interface")
-    logger.info(f"The result of the 'get value' gives:\n{pprint.pformat(interfaces, indent=2)}")
+    # Navigate to the interface data
+    data = reply_dict.get("rpc-reply", {}).get("data", {})
+    interfaces_data = data.get("interfaces", {}).get("interface-xr", {}).get("interface", [])
+
+    # Handle both single interface (dict) and multiple interfaces (list)
+    if isinstance(interfaces_data, dict):
+        interfaces = [interfaces_data]
+    else:
+        interfaces = interfaces_data
+
+    logger.info(f"The interfaces data:\n{pprint.pformat(interfaces, indent=2)}")
     results = []
     for intf in interfaces:
         ifstate = intf.get("state")
