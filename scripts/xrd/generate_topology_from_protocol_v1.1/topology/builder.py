@@ -8,14 +8,14 @@
 # Created: 2025/01/24 14:43:10
 # Author: Jeremie Rouzet
 #
-# Last Modified: 2025/01/24 14:43:10
+# Last Modified: 27.01.2026 18:35:50
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2025 Netalps.fr
 ########################################################################################################################
 
-from utils.command_runner import run_command_on_device
-from utils.parser import parse_neighbors
+from .utils.command_runner import run_command_on_device
+from .utils.parser import parse_neighbors
 
 def generate_topology(devices):
     """

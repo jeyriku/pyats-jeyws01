@@ -14,7 +14,7 @@
 # Copyright (c) 2025 Netalps.fr
 ########################################################################################################################
 
-from utils.parser import parse_neighbors
+from ..utils.parser import parse_neighbors
 
 def test_parse_neighbors():
     output = """

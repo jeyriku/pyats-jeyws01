@@ -16,9 +16,9 @@ import logging
 from genie.utils import Dq
 from lxml import etree
 from packaging import version
-from stayp.utils.libs.exceptions import StaypValueError, StaypNotImplementedError
-from stayp.utils.libs.rpc_msgs import BASE_RPC
-from stayp.utils.libs.utils import sanitize_xml
+from utils import JeyPyatsValueError as StaypValueError, JeyPyatsNotImplementedError as StaypNotImplementedError
+from rpc_msgs import BASE_RPC
+from utils import sanitize_xml
 
 parser = etree.XMLParser()
 parser.set_element_class_lookup(
@@ -42,12 +42,12 @@ class L2vpnParsersMixin:
         Note:
             Equivalent to the following CLI command:
             ::
-               show l2vpn bridge-domain brief 
+               show l2vpn bridge-domain brief
         Returns:
             dict: A dictionary where the keys could be (not mandatory here) :
                 - bridge-domain-group-name
                 - bridge-domain-name
-            and the values are 
+            and the values are
                 - their status.
                 - Number of ACs
                 - Number of PWs

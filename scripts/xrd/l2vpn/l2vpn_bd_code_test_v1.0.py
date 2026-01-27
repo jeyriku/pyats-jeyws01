@@ -7,16 +7,15 @@ __copyright__ = "Netalps AG, 2025"
 __license__ = "Apache 2.0"
 
 import unittest
-from stayp.utils.libs.assertions import CustomAssertions
 from unittest.mock import MagicMock
 
-from stayp.parsers.libs.iosxr.netconf import ParsersMixin
-from stayp.utils.libs.rpc_msgs import BASE_RPC
-from stayp.utils.libs.utils import sanitize_xml
-from stayp.utils.libs.exceptions import StaypValueError
+from parsers.iosxe import ParsersMixin
+from rpc_msgs import BASE_RPC
+from utils import sanitize_xml
+from utils import JeyPyatsValueError as StaypValueError
 
 
-class TestL2vpnParsersMixin(unittest.TestCase, CustomAssertions):
+class TestL2vpnParsersMixin(unittest.TestCase):
     """Stores Unit-Tests for L2VPN IOS-XR Netconf parsers"""
 
     def setUp(self):
@@ -37,14 +36,16 @@ class TestL2vpnParsersMixin(unittest.TestCase, CustomAssertions):
         l2vpn_bds = "bridge-up"
         reply_xml = L2VPN_BD_BRIEF
         self.mocked_device.request.return_value.xml = reply_xml
-        
+
         result = self.mocked_device.get_l2vpn_bridge_domain_brief()
 
         expected_result = {
             "BD_IB_MGMT_0001": {'state': 'bridge-up'}
         }
 
-        self.assertDictContainsSubDict(result, expected_result)
+        # Check that the result contains the expected key-value pair
+        self.assertIn("BD_IB_MGMT_0001", result)
+        self.assertEqual(result["BD_IB_MGMT_0001"], {'state': 'bridge-up'})
 
         expected_rpc = f"""
         <l2vpnv2 xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-l2vpn-oper">

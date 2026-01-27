@@ -16,8 +16,8 @@
 import logging
 import pprint
 from utils.netconf_connector import connect_netconf
-from parsers.xrd_interface_parser_oc import get_interface_status_oc
-from parsers.xrd_interface_parser_xr import get_interface_status_xr
+from parsers.xrd.xrd_interface_parser_nc_oc import get_interface_status_oc
+from parsers.xrd.xrd_interface_parser_nc_xr import get_interface_status_xr
 from pyats import aetest
 from pyats.topology import loader
 
@@ -68,7 +68,7 @@ class VerifyInterfaces(aetest.Testcase):
             if parser_type == "xr":
                 interfaces = get_interface_status_xr(device_conn)
             elif parser_type == "oc":
-                from parsers.xrd_interface_parser_oc import get_interface_status_oc
+                from parsers.xrd.xrd_interface_parser_nc_oc import get_interface_status_oc
                 interfaces = get_interface_status_oc(device_conn)
             else:
                 raise ValueError(f"Unknown parser_type: {parser_type}")
@@ -78,7 +78,7 @@ class VerifyInterfaces(aetest.Testcase):
                     logger.info(f"{device} - {intf['interface-name']} : {intf['state']}")
                     assert intf["state"] == "im-state-up", f"Interface {intf['interface-name']} on {device} is not up"
                 elif parser_type == "oc":
-                    from parsers.xrd_interface_parser_oc import get_interface_status_oc
+                    from parsers.xrd.xrd_interface_parser_nc_oc import get_interface_status_oc
                     logger.info(f"{device} - {intf['name']} : {intf['oper-status']}")
                     assert intf["oper-status"] == "UP", f"Interface {intf['name']} on {device} is not up"
                 else:
