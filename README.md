@@ -4,7 +4,7 @@
 Ce dossier regroupe un environnement de test automatisé basé sur pyATS pour l’audit et la validation d’équipements réseau via NETCONF. Il est conçu pour faciliter le développement, l’exécution et l’extension de jobs de test personnalisés.
 
 ## Version
-1.0.0 - Dernière mise à jour : 26 janvier 2026
+1.1.0 - Dernière mise à jour : 27 janvier 2026
 
 ## Objectif
 Automatiser la collecte et l’analyse d’informations réseau (statut des interfaces, configuration, etc.) sur des équipements compatibles NETCONF, en utilisant des parsers spécialisés et des utilitaires avancés.
@@ -57,6 +57,9 @@ Automatiser la collecte et l’analyse d’informations réseau (statut des inte
 			from utils import sanitize_xml
 			xml_clean = sanitize_xml(xml_string)
 			```
+- **unittest/** : suite de tests complète avec lanceur pytest :
+	- `scripts/run_all_tests.py` : lanceur de tests avec logging amélioré et métriques de performance
+	- `tests/` : tests unitaires (22 tests) couvrant tous les parsers avec mocks et assertions complètes
 - **README.md** : ce guide détaillé
 
 ## Configuration et utilisation
@@ -91,6 +94,16 @@ pip install -r ../requirements.txt
 pyats run job <nom_du_job>.py --testbed-file testbed/<votre_testbed>.yaml
 ```
 
+### 7. Exécuter les tests unitaires
+```bash
+python unittest/scripts/run_all_tests.py
+```
+Cette commande lance la suite complète de tests (22 tests) avec pytest, incluant :
+- Tests de tous les parsers (IOS-XE routing, L2VPN, XRD interfaces)
+- Logging détaillé avec timestamps
+- Métriques de performance et couverture
+- Sortie colorée et verbeuse
+
 ## Personnalisation et extension
 - Ajoutez vos propres scripts dans `scripts/` pour automatiser des séquences de test spécifiques.
 - Modifiez ou enrichissez les parsers pour supporter de nouveaux modèles d’équipements ou de nouveaux types de données.
@@ -100,6 +113,22 @@ pyats run job <nom_du_job>.py --testbed-file testbed/<votre_testbed>.yaml
 - Vérifiez la version de Python et l’activation de l’environnement virtuel.
 - Consultez les logs générés par les parsers pour diagnostiquer les erreurs de connexion ou de parsing.
 - Utilisez les messages d’erreur détaillés des scripts utils pour identifier les problèmes de configuration ou de dépendances.
+
+## Historique des versions (Changelog)
+
+### Version 1.1.0 (27 janvier 2026)
+- **Infrastructure de test complète** : Création d'une suite de tests complète avec 22 tests unitaires couvrant tous les parsers
+- **Intégration pytest** : Migration vers pytest avec sortie verbeuse, métriques de performance et logging amélioré
+- **Corrections des parsers** : Correction de la logique d'analyse XML dans les parsers IOS-XE et XRD pour une extraction correcte des champs
+- **Corrections des chemins d'import** : Mise à jour des imports dans les scripts pour utiliser les modules locaux au lieu des packages externes
+- **Logging amélioré** : Ajout de timestamps et de suivi détaillé de l'exécution dans le lanceur de tests
+- **Nettoyage du dépôt** : Suppression des fichiers de cache et artefacts générés
+
+### Version 1.0.0 (26 janvier 2026)
+- Version initiale avec parsers de base pour équipements réseau
+- Support NETCONF pour équipements Cisco IOS-XE et IOS-XR
+- Utilitaires de connexion et parsing XML
+- Scripts d'automatisation de base
 
 ## Ressources complémentaires
 - [Documentation officielle pyATS](https://developer.cisco.com/docs/pyats/)
