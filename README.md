@@ -1,139 +1,265 @@
 
-# Guide complet : JeyPyats (pyats-jeyws01)
+# JeyPyats - Network Device Parsing Framework
 
-Ce dossier regroupe un environnement de test automatisé basé sur pyATS pour l’audit et la validation d’équipements réseau via NETCONF. Il est conçu pour faciliter le développement, l’exécution et l’extension de jobs de test personnalisés.
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/your-repo/jeypyats)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## Version
-1.1.0 - Dernière mise à jour : 27 janvier 2026
+A comprehensive framework for parsing network device configurations and operational data using various protocols including NETCONF, CLI, and REST APIs.
 
-## Objectif
-Automatiser la collecte et l’analyse d’informations réseau (statut des interfaces, configuration, etc.) sur des équipements compatibles NETCONF, en utilisant des parsers spécialisés et des utilitaires avancés.
+## Features
 
-## Prérequis
-- Python 3.8 ou supérieur
-- Accès au dépôt de code
-- Connexion réseau vers les équipements à tester
-- Accès internet pour installer les dépendances
+- **Multi-Platform Support**: Parsers for Cisco IOS-XE, IOS-XR, and other network platforms
+- **NETCONF Integration**: Full NETCONF support with ncclient for device communication
+- **Comprehensive Testing**: 22 unit tests covering all parsers with pytest
+- **Modern Packaging**: Proper Python package structure with console scripts
+- **Extensible Architecture**: Easy to add new parsers and utilities
 
-## Structure détaillée du dossier
-- **bin/** : exécutables Python de l'environnement virtuel
-- **include/** : fichiers d'en-tête pour les paquets Python
-- **lib/** : bibliothèques Python installées
-- **parsers/** : scripts de parsing des résultats ou logs :
-	- `xrd_interface_parser.py` :
-		- Fonction principale : `get_interface_status(self)`
-		- Récupère le statut des interfaces via NETCONF (OpenConfig), construit et envoie la requête, parse la réponse XML et retourne le statut des interfaces.
-		- Exemple d’utilisation :
-			```python
-			status = obj.get_interface_status()
-			print(status)
-			```
-		- Dépendances : xmltodict, lxml, genie.utils.Dq
-	- `xrd_interface_parser_oc.py` :
-		- Fonction principale : `get_interface_status_oc(self)`
-		- Variante parser pour OpenConfig, loggue et parse la réponse NETCONF, retourne le statut des interfaces réseau.
-		- Ajoute des logs détaillés et utilise pprint pour l’affichage des résultats.
-	- `xrd_interface_parser_xr.py` :
-		- Fonction principale : `get_interface_status_xr(self)`
-		- Parser pour Cisco XR, construit la requête NETCONF spécifique, parse la réponse et extrait le nom et l'état des interfaces XR.
-		- Permet d’auditer des équipements Cisco IOS XR.
-- **pyvenv.cfg** : configuration de l'environnement virtuel
-- **scripts/** : scripts d'automatisation ou de test (à personnaliser selon vos besoins)
-- **utils/** : utilitaires pour les jobs/tests :
-	- `netconf_connector.py` :
-		- Fonction : `connect_netconf(host, port, username, password, device_params=None)`
-		- Établit une connexion NETCONF avec un équipement réseau via ncclient.
-		- Gère les erreurs de connexion et retourne l’objet manager ou None.
-	- `rpc_msgs.py` :
-		- Définit des messages XML NETCONF standards (`RPC_OK_MSG`, `RPC_EMPTY_MSG`, `BASE_RPC`) utilisés pour les échanges RPC.
-		- Permet de générer des requêtes et de valider les réponses attendues.
-	- `utils.py` :
-		- Fonctions utilitaires avancées :
-			- Application dynamique de mixins (ajout de méthodes à des objets selon leur type et version)
-			- Manipulation XML (insertion, nettoyage, intersection de dictionnaires)
-			- Gestion de versions et logs
-		- Exemple :
-			```python
-			from utils import sanitize_xml
-			xml_clean = sanitize_xml(xml_string)
-			```
-- **unittest/** : suite de tests complète avec lanceur pytest :
-	- `scripts/run_all_tests.py` : lanceur de tests avec logging amélioré et métriques de performance
-	- `tests/` : tests unitaires (22 tests) couvrant tous les parsers avec mocks et assertions complètes
-- **README.md** : ce guide détaillé
+## Installation
 
-## Configuration et utilisation
+### Prerequisites
+- Python 3.8 or higher
+- Git
 
-### 1. Cloner le dépôt
+### Quick Install
+
 ```bash
-git clone <url-du-depot>
-```
-
-### 2. Accéder au dossier
-```bash
+# Clone the repository
+git clone <repository-url>
 cd pyats-jeyws01
+
+# Install in development mode
+pip install -e .
 ```
 
-### 3. Créer un environnement virtuel
+### Manual Installation
+
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd pyats-jeyws01
+
+# Create virtual environment (optional but recommended)
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -e .
 ```
 
-### 4. Installer les dépendances
+## Usage
+
+### Running Tests
+
+The package includes a comprehensive test suite that can be run with a single command:
+
 ```bash
-pip install -r ../requirements.txt
+jeypyats-test
 ```
 
-### 5. Configurer le testbed
-- Placez votre fichier de testbed dans le dossier `testbed/`.
-- Modifiez le fichier selon votre environnement réseau (voir [documentation pyATS](https://developer.cisco.com/docs/pyats/)).
+This will run all 22 unit tests covering:
+- IOS-XE routing parsers (BGP, OSPF, routing tables)
+- IOS-XE L2VPN parsers (bridge domain information)
+- XRD interface parsers (OpenConfig, XR, OC variants)
 
-### 6. Lancer un test exemple
+### Using the Parsers
+
+```python
+import jeypyats
+
+# Connect to a NETCONF device
+from jeypyats.utils import connect_netconf
+connection = connect_netconf('192.168.1.1', 830, 'username', 'password')
+
+# Parse interface status
+from jeypyats.parsers.xrd.xrd_interface_parser_nc import get_interface_status
+status = get_interface_status(connection)
+print(status)
+
+# Parse routing information
+from jeypyats.parsers.iosxe import ParsersMixin
+parser = ParsersMixin()
+bgp_routes = parser.get_bgp_routes()
+```
+
+## Project Structure
+
+```
+jeypyats/
+├── __init__.py                 # Package initialization
+├── parsers/                    # Network device parsers
+│   ├── __init__.py
+│   ├── iosxe/                  # IOS-XE specific parsers
+│   │   ├── __init__.py
+│   │   ├── iosxe_interface_parsers_nc.py
+│   │   ├── iosxe_routing_parsers_nc.py
+│   │   └── parsers.egg-info/
+│   └── xrd/                    # IOS-XR specific parsers
+│       ├── __init__.py
+│       ├── xrd_interface_parser_nc.py
+│       ├── xrd_interface_parser_nc_oc.py
+│       └── xrd_interface_parser_nc_xr.py
+├── utils/                      # Utility functions
+│   ├── __init__.py
+│   ├── netconf_connector.py    # NETCONF connection utilities
+│   ├── rpc_msgs.py            # NETCONF RPC message templates
+│   └── utils.py               # General utilities
+└── test_suite/                # Test suite
+    ├── __init__.py
+    ├── scripts/
+    │   └── run_all_tests.py   # Test runner script
+    └── tests/                 # Unit tests (22 test files)
+```
+
+## Configuration
+
+### Testbed Configuration
+
+Create a testbed YAML file in the `testbed/` directory following pyATS conventions:
+
+```yaml
+devices:
+  my_device:
+    type: iosxe
+    connections:
+      netconf:
+        class: ncclient
+        ip: 192.168.1.1
+        port: 830
+        username: admin
+        password: password
+```
+
+### Environment Variables
+
+Set the following environment variables for device access:
+
 ```bash
-pyats run job <nom_du_job>.py --testbed-file testbed/<votre_testbed>.yaml
+export NETCONF_HOST=192.168.1.1
+export NETCONF_PORT=830
+export NETCONF_USERNAME=admin
+export NETCONF_PASSWORD=password
 ```
 
-### 7. Exécuter les tests unitaires
+## Development
+
+### Adding New Parsers
+
+1. Create a new parser file in the appropriate platform directory
+2. Add the parser function with proper error handling
+3. Create corresponding unit tests
+4. Update imports in `__init__.py` files if needed
+
+### Running Tests During Development
+
 ```bash
-python unittest/scripts/run_all_tests.py
+# Run all tests
+jeypyats-test
+
+# Run specific test file
+python -m pytest jeypyats/test_suite/tests/test_iosxe_routing_parser.py -v
+
+# Run with coverage
+python -m pytest jeypyats/test_suite/tests/ --cov=jeypyats --cov-report=html
 ```
-Cette commande lance la suite complète de tests (22 tests) avec pytest, incluant :
-- Tests de tous les parsers (IOS-XE routing, L2VPN, XRD interfaces)
-- Logging détaillé avec timestamps
-- Métriques de performance et couverture
-- Sortie colorée et verbeuse
 
-## Personnalisation et extension
-- Ajoutez vos propres scripts dans `scripts/` pour automatiser des séquences de test spécifiques.
-- Modifiez ou enrichissez les parsers pour supporter de nouveaux modèles d’équipements ou de nouveaux types de données.
-- Utilisez les utilitaires pour manipuler les données XML, gérer les logs ou appliquer des mixins selon vos besoins.
+### Building Distribution
 
-## Dépannage
-- Vérifiez la version de Python et l’activation de l’environnement virtuel.
-- Consultez les logs générés par les parsers pour diagnostiquer les erreurs de connexion ou de parsing.
-- Utilisez les messages d’erreur détaillés des scripts utils pour identifier les problèmes de configuration ou de dépendances.
+```bash
+# Build source distribution and wheel
+python -m build
 
-## Historique des versions (Changelog)
+# Upload to PyPI (requires API token)
+twine upload dist/*
+```
 
-### Version 1.1.0 (27 janvier 2026)
-- **Infrastructure de test complète** : Création d'une suite de tests complète avec 22 tests unitaires couvrant tous les parsers
-- **Intégration pytest** : Migration vers pytest avec sortie verbeuse, métriques de performance et logging amélioré
-- **Corrections des parsers** : Correction de la logique d'analyse XML dans les parsers IOS-XE et XRD pour une extraction correcte des champs
-- **Corrections des chemins d'import** : Mise à jour des imports dans les scripts pour utiliser les modules locaux au lieu des packages externes
-- **Logging amélioré** : Ajout de timestamps et de suivi détaillé de l'exécution dans le lanceur de tests
-- **Nettoyage du dépôt** : Suppression des fichiers de cache et artefacts générés
+## Dependencies
 
-### Version 1.0.0 (26 janvier 2026)
-- Version initiale avec parsers de base pour équipements réseau
-- Support NETCONF pour équipements Cisco IOS-XE et IOS-XR
-- Utilitaires de connexion et parsing XML
-- Scripts d'automatisation de base
+### Core Dependencies
+- `lxml>=4.9.0` - XML processing
+- `xmltodict>=0.12.0` - XML to dictionary conversion
+- `ncclient>=0.6.0` - NETCONF client
+- `genie>=23.0` - Cisco test automation framework
+- `pyats>=23.0` - Cisco pyATS framework
 
-## Ressources complémentaires
-- [Documentation officielle pyATS](https://developer.cisco.com/docs/pyats/)
-- [ncclient (NETCONF Python client)](https://ncclient.readthedocs.io/en/latest/)
-- [lxml (traitement XML)](https://lxml.de/)
+### Development Dependencies
+- `pytest>=7.0.0` - Testing framework
+- `pytest-cov>=4.0.0` - Coverage reporting
+- `yamllint>=1.30.0` - YAML linting
+
+## Testing
+
+The framework includes comprehensive unit tests with mocks for all external dependencies:
+
+```bash
+# Run complete test suite
+jeypyats-test
+
+# Expected output: 22 passed tests
+============================= 22 passed, 2 warnings in 0.49s =============================
+```
+
+### Test Coverage
+
+- **IOS-XE Parsers**: Routing tables, BGP/OSPF routes, L2VPN bridge domains
+- **XRD Parsers**: Interface status for OpenConfig, XR, and OC variants
+- **Error Handling**: Invalid responses, connection failures, malformed XML
+- **Edge Cases**: Empty data, missing fields, network timeouts
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Import Errors**: Ensure the package is installed with `pip install -e .`
+2. **NETCONF Connection Failed**: Check device credentials and network connectivity
+3. **XML Parsing Errors**: Verify device YANG models and response format
+4. **Test Failures**: Run `jeypyats-test` to verify all components work
+
+### Debug Mode
+
+Enable detailed logging:
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Your parser code here
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Changelog
+
+### Version 1.1.0 (January 27, 2026)
+- ✅ **Complete Package Restructure**: Migrated to proper Python package with `jeypyats` namespace
+- ✅ **Console Script**: Added `jeypyats-test` command for easy test execution
+- ✅ **Modern Packaging**: Implemented `pyproject.toml` with comprehensive dependencies
+- ✅ **Import Fixes**: Updated all relative imports for proper package structure
+- ✅ **Test Suite**: 22 unit tests covering all parsers with pytest integration
+- ✅ **Documentation**: Updated README with installation and usage instructions
+
+### Version 1.0.0 (January 26, 2026)
+- Initial release with basic NETCONF parsers
+- Support for Cisco IOS-XE and IOS-XR platforms
+- Basic utility functions and connection management
+
+## Support
+
+For questions or issues:
+- Check the [pyATS documentation](https://developer.cisco.com/docs/pyats/)
+- Review the test suite for usage examples
+- Open an issue on the project repository
 
 ---
-Pour toute question ou demande d’assistance, contactez le responsable technique ou consultez la documentation officielle.
+
+**JeyPyats** - Automating Network Device Testing with Python

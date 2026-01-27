@@ -1,0 +1,11 @@
+include README.md
+include requirements.txt
+recursive-include testbed *.yaml
+recursive-include testbed *.yml
+recursive-include scripts *.py
+recursive-include scripts */*.py
+recursive-include scripts */*/*.py
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude *.pyo
+global-exclude .git*
