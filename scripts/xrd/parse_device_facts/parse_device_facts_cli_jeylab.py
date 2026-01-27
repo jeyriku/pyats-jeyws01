@@ -8,7 +8,7 @@
 # Created: 2025/01/28 11:19:12
 # Author: Jeremie Rouzet
 #
-# Last Modified: 2025/01/28 11:19:12
+# Last Modified: 27.01.2026 19:39:40
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2025 Netalps.fr
@@ -16,36 +16,54 @@
 
 # New module! Now using Genie!
 from genie import testbed
+import argparse
+import os
 
-# Step 0: load the testbed
-testbed1 = testbed.load('./sw_tb_cli_v1.0_clab.yaml')
+def main():
+    parser = argparse.ArgumentParser(description='Parse Device Facts CLI Script')
+    parser.add_argument('--testbed',
+                       default='../testbed/xrd/xrd_sw_tb_cli_v1.0_clab.yaml',
+                       help='Path to the testbed YAML file')
+    args = parser.parse_args()
 
-# Step 1: testbed is a dictionary. Extract the device iosxr1
-device = testbed1.devices["jeylab-iosxrd-cr-01"]
-print(device)
+    # Step 0: load the testbed
+    testbed_file = args.testbed
+    if not os.path.exists(testbed_file):
+        print(f"Error: Testbed file {testbed_file} not found")
+        return
 
-# Step 2: Connect to the device
-device.connect(init_exec_commands=[], init_config_commands=[],log_stdout=True,)
+    testbed1 = testbed.load(testbed_file)
 
-# Step 3: saving the `show ip interface brief` output in a variable
-show_interface = device.parse('show ip interface brief')
-print(show_interface)
+    # Step 1: testbed is a dictionary. Extract the device iosxr1
+    device = testbed1.devices["jeylab-iosxrd-cr-01"]
+    print(device)
 
-# Step 4: saving the `show ip interface brief` output in a variable
-show_version = device.parse('show version')
+    # Step 2: Connect to the device
+    device.connect(init_exec_commands=[], init_config_commands=[],log_stdout=True,)
 
-# Step 5: iterating through the parsed output. Extracting interface name and IP
-for interface, details in show_interface['interface'].items():
-    print(f"{interface} -- {details['ip_address']}")
+    # Step 3: saving the `show ip interface brief` output in a variable
+    show_interface = device.parse('show ip interface brief')
+    print(show_interface)
 
-# Step 6: iterating through the parsed output. Extracting software version
-print()
-print(f"Operating System: {show_version['operating_system']}")
-print(f"Software Version: {show_version['software_version']}")
-print()
-#or
-print()
-print(f"Operating System: {show_version['operating_system']}\nSoftware Version: {show_version['software_version']}")
-print()
-# Step 7: disconnect from the device
-device.disconnect()
+    # Step 4: saving the `show ip interface brief` output in a variable
+    show_version = device.parse('show version')
+
+    # Step 5: iterating through the parsed output. Extracting interface name and IP
+    for interface, details in show_interface['interface'].items():
+        print(f"{interface} -- {details['ip_address']}")
+
+    # Step 6: iterating through the parsed output. Extracting software version
+    print()
+    print(f"Operating System: {show_version['operating_system']}")
+    print(f"Software Version: {show_version['software_version']}")
+    print()
+    #or
+    print()
+    print(f"Operating System: {show_version['operating_system']}\nSoftware Version: {show_version['software_version']}")
+    print()
+    # Step 7: disconnect from the device
+    device.disconnect()
+
+
+if __name__ == "__main__":
+    main()

@@ -3,22 +3,22 @@
 ########################################################################################################################
 # This file is a part of Netalps.fr.
 #
-# Created: 23.01.2026 22:59:22
-# Author: Jeremie Rouzet
+# Created: 27.01.2026 20:00:00
+# Author: GitHub Copilot
 #
-# Last Modified: 26.01.2026 13:57:02
+# Last Modified: 27.01.2026 19:43:25
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2026 Netalps.fr
 ########################################################################################################################
 
-__author__ = ["Jeremie Rouzet"]
+__author__ = ["GitHub Copilot"]
 __contact__ = 'jeremie.rouzet@netalps.fr'
 __copyright__ = 'Netalps, 2026'
 __license__ = "Netalps, Copyright 2026. All rights reserved."
 
 """
-PyATS Job file for running Huawei VRP BGP parser tests
+PyATS Job file for running L2VPN Bridge Domain Brief CLI script
 """
 
 import logging
@@ -30,11 +30,11 @@ logger = logging.getLogger(__name__)
 
 def main(runtime):
     """
-    Main job function that will run the BGP parser tests
+    Main job function that will run the L2VPN CLI script
     """
 
-    # Default testbed path if not provided in runtime
-    default_testbed = "/Users/jeremierouzet/Documents/Dev/pyats/testbed/ioxe/ioxe_jeytestbed_cisco_init_v0.0.1.yml"
+    # Default testbed path
+    default_testbed = "/Users/jeremierouzet/Documents/Dev/pyats/testbed/xrd/xrd_sw_tb_cli_v1.0_clab.yaml"
 
     # Get testbed from runtime arguments or use default
     testbed_file = runtime.testbed or default_testbed
@@ -43,17 +43,9 @@ def main(runtime):
 
     # Run the test script
     run(
-        testscript='/Users/jeremierouzet/Documents/Dev/pyats/pyats-jeyws01/scripts/Failover/failover.py',
+        testscript='/Users/jeremierouzet/Documents/Dev/pyats/pyats-jeyws01/scripts/xrd/l2vpn/l2vpn_bgbd_script_cli.v1.0.py',
         runtime=runtime,
-        taskid='Tests_Failover',
+        taskid='L2VPN_CLI_Test',
         testbed=testbed_file,
-        description='Test Cisco IOS XE Failover functionality'
+        description='Test L2VPN Bridge Domain Brief via CLI'
     )
-    logger.info("Test script execution completed.")
-
-if __name__ == '__main__':
-    import argparse
-    from pyats.easypy import main as easypy_main
-
-    # If run directly, use easypy to run the job
-    easypy_main()
