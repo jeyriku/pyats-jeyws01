@@ -1,7 +1,7 @@
 
 # JeyPyats - Network Device Parsing Framework
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/your-repo/jeypyats)
+[![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)](https://github.com/your-repo/jeypyats)
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -239,6 +239,10 @@ logging.basicConfig(level=logging.DEBUG)
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Changelog
+
+### Version 1.1.1 (January 28, 2026)
+- ✅ **Failover Script Enhancements**: Added more methods to testscript failover.py
+- ✅ **Testbed Loading Harmonization**: Harmonized testbed loading in scripts and added jobfiles
 
 ### Version 1.1.0 (January 27, 2026)
 - ✅ **Complete Package Restructure**: Migrated to proper Python package with `jeypyats` namespace

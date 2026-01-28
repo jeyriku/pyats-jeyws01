@@ -6,7 +6,7 @@
 # Created: 23.01.2026 22:58:12
 # Author: Jeremie Rouzet
 #
-# Last Modified: 27.01.2026 20:16:56
+# Last Modified: 28.01.2026 16:47:18
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2026 Netalps.fr
@@ -39,6 +39,8 @@ import logging
 from pyats import aetest
 from pyats.topology import loader
 from jeypyats.parsers.iosxe.iosxe_routing_parsers_nc import IOSXERoutingParsersMixin
+from jeypyats.parsers.iosxe.iosxe_interface_parsers_nc import IOSXEInterfacesParsersMixin
+from jeypyats.utils.utils import block_if_fails
 import time
 
 # Set up logging
@@ -77,7 +79,7 @@ class JeylanCommonSetup(aetest.CommonSetup):
             logger.info(f"Device {device.name} is running OS version: {os_version}")
 
 
-class FailoverTestcase(aetest.Testcase, IOSXERoutingParsersMixin):
+class FailoverTestcase(aetest.Testcase, IOSXERoutingParsersMixin, IOSXEInterfacesParsersMixin):
     """
     This testcase verifies the failover functionality on Cisco IOS XE devices.
     In this testcase, we will simulate a failure on the primary route and check if the secondary route takes over.
@@ -98,6 +100,7 @@ class FailoverTestcase(aetest.Testcase, IOSXERoutingParsersMixin):
         logger.info("Failover testcase setup complete.")
 
     # Check primary route before failover on jey-isr1k-ce-03 using netconf parsers
+    @block_if_fails
     @aetest.test
     def check_primary_route(self):
         """ Check primary route is active before failover """
@@ -107,6 +110,16 @@ class FailoverTestcase(aetest.Testcase, IOSXERoutingParsersMixin):
         # Confirm that the primary route is via the ISP modem through interface GigabitEthernet0/0/0
         assert any(route['interface'] == 'GigabitEthernet0/0/0' for route in primary_route), "Primary route is not via the expected interface."
         logger.info("Primary route is active and correct before failover.")
+
+    @block_if_fails
+    @aetest.test
+    def check_lte_connectivity(self):
+        """ Check that LTE connectivity is available before failover """
+        lte_status = self.ce.get_interfaces_cellular_status()
+        logger.info(f"LTE interface status before failover: {lte_status}")
+        assert lte_status, "LTE interface is not available before failover."
+        assert any(status['oper_status'] == 'up' for status in lte_status.values()), "LTE interface is not up before failover."
+        logger.info("LTE connectivity is available before failover.")
 
     @aetest.test
     def simulate_failover(self, steps):

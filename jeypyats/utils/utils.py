@@ -8,7 +8,7 @@
 # Created: 2025/06/25 13:41:04
 # Author: Jeremie Rouzet
 #
-# Last Modified: 26.01.2026 14:01:10
+# Last Modified: 28.01.2026 16:44:22
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2025 Netalps.fr
@@ -252,3 +252,17 @@ def dict_intersection(dict1, dict2):
         return intersection
 
     return recursive_intersection(dict1, dict2)
+
+def block_if_fails(func):
+    """
+    This function will block the execution of the next methods of the testcase if the decorated method fails.
+    It is intended to be used as a decorator for aetest methods.
+    """
+    def wrapper(self, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except Exception as e:
+            self.blocked = True
+            self.failed(f"Testcase blocked due to failure in {func.__name__}: {e}")
+    return wrapper
+
