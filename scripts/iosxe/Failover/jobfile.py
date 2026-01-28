@@ -6,7 +6,7 @@
 # Created: 23.01.2026 22:59:22
 # Author: Jeremie Rouzet
 #
-# Last Modified: 26.01.2026 13:57:02
+# Last Modified: 27.01.2026 19:52:12
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2026 Netalps.fr
@@ -43,7 +43,7 @@ def main(runtime):
 
     # Run the test script
     run(
-        testscript='/Users/jeremierouzet/Documents/Dev/pyats/pyats-jeyws01/scripts/Failover/failover.py',
+        testscript='/Users/jeremierouzet/Documents/Dev/pyats/pyats-jeyws01/scripts/iosxe/Failover/failover.py',
         runtime=runtime,
         taskid='Tests_Failover',
         testbed=testbed_file,

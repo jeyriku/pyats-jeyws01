@@ -6,7 +6,7 @@
 # Created: 23.01.2026 22:58:12
 # Author: Jeremie Rouzet
 #
-# Last Modified: 27.01.2026 18:50:17
+# Last Modified: 27.01.2026 20:09:16
 # Modified By: Jeremie Rouzet
 #
 # Copyright (c) 2026 Netalps.fr
@@ -207,5 +207,43 @@ class IOSXERoutingParsersMixin:
                 'interface': entry.get('interface'),
             }
             parsed_entries.append(parsed_entry)
+
+        return parsed_entries
+
+    def get_routing_table_default_routes(self):
+        '''
+        Get default route entries from the global routing table
+        Returns:
+            dict: Parsed default route entries
+        Similar cli command:
+            show ip route 0.0.0.0 0.0.0.0
+        '''
+        rpc = BASE_RPC + '''
+            <get-routing-table xmlns="http://cisco.com/ns/yang/Cisco-IOS-XE-rpc">
+                <vrf-name>default</vrf-name>
+            </get-routing-table>
+        '''
+        response = self.netconf_get(rpc)
+        data_dict = xmltodict.parse(response.xml)
+        # Navigate to routing table entries
+        rpc_reply = data_dict.get("rpc-reply", {})
+        routing_table = rpc_reply.get("routing-table", {})
+        rt_entries = routing_table.get("rt-entry", [])
+        # Handle both single entry (dict) and multiple entries (list)
+        if isinstance(rt_entries, dict):
+            routing_entries = [rt_entries]
+        else:
+            routing_entries = rt_entries
+        parsed_entries = []
+        for entry in routing_entries:
+            if entry.get('destination') == '0.0.0.0/0':
+                parsed_entry = {
+                    'prefix': entry.get('destination'),
+                    'protocol': entry.get('protocol'),
+                    'next_hop': entry.get('gateway'),
+                    'metric': entry.get('metric'),
+                    'interface': entry.get('interface'),
+                }
+                parsed_entries.append(parsed_entry)
 
         return parsed_entries
